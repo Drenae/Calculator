@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +26,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,133 +62,171 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+private class ProductionState {
+    var paletteCount by mutableStateOf("")
+    var quantityPerPalette by mutableStateOf("")
+    var cycleTime by mutableStateOf("")
+    var cavityCount by mutableIntStateOf(1)
+}
+
+private data class ProductionResult(
+    val totalQuantity: Long,
+    val totalSeconds: Long,
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime
+)
+
 @Composable
 fun ProductionCalculator(modifier: Modifier = Modifier) {
-    var paletteCount by remember { mutableStateOf("") }
-    var quantityPerPalette by remember { mutableStateOf("") }
-    var cycleTime by remember { mutableStateOf("") }
-    var cavityCount by remember { mutableIntStateOf(1) }
-    var chainedStartTime by remember { mutableStateOf<LocalDateTime?>(null) }
+    val productions = remember { mutableStateListOf(ProductionState()) }
+    val now = LocalDateTime.now()
 
-    val palettes = paletteCount.toLongOrNull()
-    val quantity = quantityPerPalette.toLongOrNull()
-    val cycleSeconds = cycleTime.replace(',', '.').toDoubleOrNull()
+    val results = mutableListOf<ProductionResult?>()
+    var nextStart = now
 
-    val isValid = palettes != null && palettes > 0 &&
-        quantity != null && quantity > 0 &&
-        cycleSeconds != null && cycleSeconds > 0
-
-    val totalQuantity = if (isValid) palettes!! * quantity!! else null
-    val cycleCount = totalQuantity?.let { ceil(it.toDouble() / cavityCount).toLong() }
-    val totalSeconds = if (cycleCount != null && cycleSeconds != null) {
-        (cycleCount * cycleSeconds).roundToLong()
-    } else {
-        null
+    productions.forEach { production ->
+        val result = calculateProduction(production, nextStart)
+        results += result
+        if (result != null) {
+            nextStart = result.endTime
+        }
     }
 
-    val startTime = if (totalSeconds != null) {
-        chainedStartTime ?: LocalDateTime.now()
-    } else {
-        null
-    }
-
-    val endTime = if (startTime != null && totalSeconds != null) {
-        startTime.plusSeconds(totalSeconds)
-    } else {
-        null
-    }
-
-    Column(
-        modifier = modifier.padding(horizontal = 24.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.Top
+    LazyColumn(
+        modifier = modifier.padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        Text(
-            text = "Calculateur de production",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.SemiBold
-        )
+        item {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Calculateur de production",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        itemsIndexed(productions) { index, production ->
+            val result = results[index]
+            val chainedStart = if (index == 0) null else results.getOrNull(index - 1)?.endTime
 
-        OutlinedTextField(
-            value = paletteCount,
-            onValueChange = { value ->
-                if (value.all(Char::isDigit)) paletteCount = value
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Nombre de palettes") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
+            ProductionSection(
+                index = index,
+                production = production,
+                result = result,
+                chainedStart = chainedStart,
+                canAddNext = index == productions.lastIndex && result != null,
+                onAddNext = { productions.add(ProductionState()) }
+            )
+        }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
 
-        OutlinedTextField(
-            value = quantityPerPalette,
-            onValueChange = { value ->
-                if (value.all(Char::isDigit)) quantityPerPalette = value
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Quantité par palette") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProductionSection(
+    index: Int,
+    production: ProductionState,
+    result: ProductionResult?,
+    chainedStart: LocalDateTime?,
+    canAddNext: Boolean,
+    onAddNext: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (index > 0) {
+            Text(
+                text = "Production ${index + 1}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
 
-        Spacer(modifier = Modifier.height(14.dp))
+            if (chainedStart != null) {
+                Text(
+                    text = "Départ : ${formatRelativeDateTime(chainedStart)}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
-        OutlinedTextField(
-            value = cycleTime,
-            onValueChange = { value ->
-                val normalized = value.replace(',', '.')
-                if (normalized.count { it == '.' } <= 1 &&
-                    normalized.all { it.isDigit() || it == '.' }
-                ) {
-                    cycleTime = value
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Temps de cycle") },
-            suffix = { Text("sec") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-        )
-
-        Spacer(modifier = Modifier.height(22.dp))
-
-        Text(
-            text = "Nombre d'empreintes",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Medium
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = production.paletteCount,
+                onValueChange = { value ->
+                    if (value.all(Char::isDigit)) production.paletteCount = value
+                },
+                modifier = Modifier.weight(1f),
+                label = { Text("Palettes") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            OutlinedTextField(
+                value = production.quantityPerPalette,
+                onValueChange = { value ->
+                    if (value.all(Char::isDigit)) production.quantityPerPalette = value
+                },
+                modifier = Modifier.weight(1.15f),
+                label = { Text("Quantité / P") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            OutlinedTextField(
+                value = production.cycleTime,
+                onValueChange = { value ->
+                    val normalized = value.replace(',', '.')
+                    if (normalized.count { it == '.' } <= 1 &&
+                        normalized.all { it.isDigit() || it == '.' }
+                    ) {
+                        production.cycleTime = value
+                    }
+                },
+                modifier = Modifier.weight(1f),
+                label = { Text("Cycle") },
+                suffix = { Text("s") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Text(
+            text = "Empreintes",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             listOf(1, 2, 4, 12).forEach { value ->
                 FilterChip(
-                    selected = cavityCount == value,
-                    onClick = { cavityCount = value },
+                    selected = production.cavityCount == value,
+                    onClick = { production.cavityCount = value },
                     label = { Text(value.toString()) },
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
-
-        if (totalQuantity != null && totalSeconds != null && startTime != null && endTime != null) {
+        if (result != null) {
+            Spacer(modifier = Modifier.height(14.dp))
             ResultCard(
-                totalQuantity = totalQuantity,
-                totalSeconds = totalSeconds,
-                startTime = startTime,
-                endTime = endTime,
-                isChained = chainedStartTime != null,
-                onUseAsNextStart = { chainedStartTime = endTime },
-                onResetStart = { chainedStartTime = null }
+                result = result,
+                showAddButton = canAddNext,
+                onAddNext = onAddNext
             )
         }
     }
@@ -193,77 +234,77 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ResultCard(
-    totalQuantity: Long,
-    totalSeconds: Long,
-    startTime: LocalDateTime,
-    endTime: LocalDateTime,
-    isChained: Boolean,
-    onUseAsNextStart: () -> Unit,
-    onResetStart: () -> Unit
+    result: ProductionResult,
+    showAddButton: Boolean,
+    onAddNext: () -> Unit
 ) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "${formatNumber(result.totalQuantity)} pièces",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Temps de production : ${formatDuration(result.totalSeconds)}",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Text(
+                text = "Fin estimée : ${formatRelativeDateTime(result.endTime)}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (showAddButton) {
+                Spacer(modifier = Modifier.height(4.dp))
+                TextButton(onClick = onAddNext) {
+                    Text("+ Ajouter une production")
+                }
+            }
+        }
+    }
+}
+
+private fun calculateProduction(
+    production: ProductionState,
+    startTime: LocalDateTime
+): ProductionResult? {
+    val palettes = production.paletteCount.toLongOrNull()
+    val quantity = production.quantityPerPalette.toLongOrNull()
+    val cycleSeconds = production.cycleTime.replace(',', '.').toDoubleOrNull()
+
+    if (palettes == null || palettes <= 0 ||
+        quantity == null || quantity <= 0 ||
+        cycleSeconds == null || cycleSeconds <= 0
+    ) {
+        return null
+    }
+
+    val totalQuantity = palettes * quantity
+    val cycleCount = ceil(totalQuantity.toDouble() / production.cavityCount).toLong()
+    val totalSeconds = (cycleCount * cycleSeconds).roundToLong()
+
+    return ProductionResult(
+        totalQuantity = totalQuantity,
+        totalSeconds = totalSeconds,
+        startTime = startTime,
+        endTime = startTime.plusSeconds(totalSeconds)
+    )
+}
+
+private fun formatDuration(totalSeconds: Long): String {
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
     val seconds = totalSeconds % 60
 
-    val durationText = buildString {
+    return buildString {
         if (hours > 0) append("${hours} h ")
         if (minutes > 0 || hours > 0) append("${minutes} min ")
         append("${seconds} s")
-    }
-
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            if (isChained) {
-                Text(
-                    text = "Départ : ${formatRelativeDateTime(startTime)}",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Medium
-                )
-                TextButton(onClick = onResetStart) {
-                    Text("Revenir à maintenant")
-                }
-
-                Spacer(modifier = Modifier.height(6.dp))
-            }
-
-            Text(
-                text = "Quantité totale",
-                style = MaterialTheme.typography.labelLarge
-            )
-            Text(
-                text = "${formatNumber(totalQuantity)} pièces",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            Text(
-                text = "Temps de production",
-                style = MaterialTheme.typography.labelLarge
-            )
-            Text(
-                text = durationText,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            Text(
-                text = "Fin estimée",
-                style = MaterialTheme.typography.labelLarge
-            )
-            Text(
-                text = formatRelativeDateTime(endTime),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            TextButton(onClick = onUseAsNextStart) {
-                Text("Utiliser comme départ suivant")
-            }
-        }
     }
 }
 
