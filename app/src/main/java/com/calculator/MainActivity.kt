@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -32,8 +33,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.calculator.ui.theme.CalculatorTheme
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.roundToLong
@@ -63,6 +66,7 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
     var quantityPerPalette by remember { mutableStateOf("") }
     var cycleTime by remember { mutableStateOf("") }
     var cavityCount by remember { mutableIntStateOf(1) }
+    var chainedStartTime by remember { mutableStateOf<LocalDateTime?>(null) }
 
     val palettes = paletteCount.toLongOrNull()
     val quantity = quantityPerPalette.toLongOrNull()
@@ -80,7 +84,12 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
         null
     }
 
-    val startTime = if (totalSeconds != null) LocalDateTime.now() else null
+    val startTime = if (totalSeconds != null) {
+        chainedStartTime ?: LocalDateTime.now()
+    } else {
+        null
+    }
+
     val endTime = if (startTime != null && totalSeconds != null) {
         startTime.plusSeconds(totalSeconds)
     } else {
@@ -173,7 +182,10 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
                 totalQuantity = totalQuantity,
                 totalSeconds = totalSeconds,
                 startTime = startTime,
-                endTime = endTime
+                endTime = endTime,
+                isChained = chainedStartTime != null,
+                onUseAsNextStart = { chainedStartTime = endTime },
+                onResetStart = { chainedStartTime = null }
             )
         }
     }
@@ -184,7 +196,10 @@ private fun ResultCard(
     totalQuantity: Long,
     totalSeconds: Long,
     startTime: LocalDateTime,
-    endTime: LocalDateTime
+    endTime: LocalDateTime,
+    isChained: Boolean,
+    onUseAsNextStart: () -> Unit,
+    onResetStart: () -> Unit
 ) {
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
@@ -198,6 +213,19 @@ private fun ResultCard(
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(20.dp)) {
+            if (isChained) {
+                Text(
+                    text = "Départ : ${formatRelativeDateTime(startTime)}",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                TextButton(onClick = onResetStart) {
+                    Text("Revenir à maintenant")
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+            }
+
             Text(
                 text = "Quantité totale",
                 style = MaterialTheme.typography.labelLarge
@@ -227,26 +255,28 @@ private fun ResultCard(
                 style = MaterialTheme.typography.labelLarge
             )
             Text(
-                text = formatEstimatedEnd(startTime, endTime),
+                text = formatRelativeDateTime(endTime),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
+
+            TextButton(onClick = onUseAsNextStart) {
+                Text("Utiliser comme départ suivant")
+            }
         }
     }
 }
 
-private fun formatEstimatedEnd(startTime: LocalDateTime, endTime: LocalDateTime): String {
-    val time = endTime.format(DateTimeFormatter.ofPattern("HH:mm"))
-    val dayDifference = java.time.temporal.ChronoUnit.DAYS.between(
-        startTime.toLocalDate(),
-        endTime.toLocalDate()
-    )
+private fun formatRelativeDateTime(dateTime: LocalDateTime): String {
+    val time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+    val today = LocalDate.now()
+    val dayDifference = ChronoUnit.DAYS.between(today, dateTime.toLocalDate())
 
     return when (dayDifference) {
         0L -> "Aujourd'hui à $time"
         1L -> "Demain à $time"
         else -> {
-            val dayName = endTime.format(
+            val dayName = dateTime.format(
                 DateTimeFormatter.ofPattern("EEEE", Locale.FRENCH)
             ).replaceFirstChar { it.uppercase(Locale.FRENCH) }
             "$dayName à $time"
