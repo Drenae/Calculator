@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.calculator.ui.theme.CalculatorTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
@@ -79,8 +80,11 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
         null
     }
 
-    val endTime = totalSeconds?.let {
-        LocalDateTime.now().plusSeconds(it)
+    val startTime = if (totalSeconds != null) LocalDateTime.now() else null
+    val endTime = if (startTime != null && totalSeconds != null) {
+        startTime.plusSeconds(totalSeconds)
+    } else {
+        null
     }
 
     Column(
@@ -164,10 +168,11 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        if (totalQuantity != null && totalSeconds != null && endTime != null) {
+        if (totalQuantity != null && totalSeconds != null && startTime != null && endTime != null) {
             ResultCard(
                 totalQuantity = totalQuantity,
                 totalSeconds = totalSeconds,
+                startTime = startTime,
                 endTime = endTime
             )
         }
@@ -178,6 +183,7 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
 private fun ResultCard(
     totalQuantity: Long,
     totalSeconds: Long,
+    startTime: LocalDateTime,
     endTime: LocalDateTime
 ) {
     val hours = totalSeconds / 3600
@@ -221,10 +227,29 @@ private fun ResultCard(
                 style = MaterialTheme.typography.labelLarge
             )
             Text(
-                text = endTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                text = formatEstimatedEnd(startTime, endTime),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
+        }
+    }
+}
+
+private fun formatEstimatedEnd(startTime: LocalDateTime, endTime: LocalDateTime): String {
+    val time = endTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+    val dayDifference = java.time.temporal.ChronoUnit.DAYS.between(
+        startTime.toLocalDate(),
+        endTime.toLocalDate()
+    )
+
+    return when (dayDifference) {
+        0L -> "Aujourd'hui à $time"
+        1L -> "Demain à $time"
+        else -> {
+            val dayName = endTime.format(
+                DateTimeFormatter.ofPattern("EEEE", Locale.FRENCH)
+            ).replaceFirstChar { it.uppercase(Locale.FRENCH) }
+            "$dayName à $time"
         }
     }
 }
