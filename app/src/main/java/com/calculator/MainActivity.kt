@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -72,6 +72,7 @@ private val BlueAccent = Color(0xFF3295FF)
 private val GreenAccent = Color(0xFF5FE0A7)
 private val PurpleAccent = Color(0xFF8C62FF)
 private val OrangeAccent = Color(0xFFFFB23F)
+private val TextOnLight = Color(0xFF07111E)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -215,6 +216,7 @@ private fun ProductionSection(
     onAddNext: () -> Unit
 ) {
     val accent = productionAccent(index)
+    val textOnAccent = textColorFor(accent)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Card(
@@ -275,7 +277,7 @@ private fun ProductionSection(
                                 containerColor = SurfaceRaised,
                                 labelColor = TextPrimary,
                                 selectedContainerColor = accent,
-                                selectedLabelColor = Color.White
+                                selectedLabelColor = textOnAccent
                             )
                         )
                     }
@@ -335,7 +337,7 @@ private fun ProductionHeader(
         ) {
             Text(
                 text = (index + 1).toString(),
-                color = Color.White,
+                color = textColorFor(accent),
                 fontWeight = FontWeight.Black,
                 fontSize = 17.sp
             )
@@ -472,16 +474,6 @@ private fun ResultCard(
         ) {
             ResultColumn(
                 modifier = Modifier.weight(1f),
-                label = "Total à produire",
-                value = formatNumber(result.totalQuantity),
-                subValue = "pièces",
-                accent = accent
-            )
-
-            ResultDivider()
-
-            ResultColumn(
-                modifier = Modifier.weight(1.12f),
                 label = "Temps de production",
                 value = formatDuration(result.totalSeconds),
                 accent = TextPrimary
@@ -490,7 +482,7 @@ private fun ResultCard(
             ResultDivider()
 
             ResultColumn(
-                modifier = Modifier.weight(1.15f),
+                modifier = Modifier.weight(1f),
                 label = "Fin estimée",
                 value = formatRelativeDateTime(result.endTime),
                 accent = accent
@@ -504,10 +496,9 @@ private fun ResultColumn(
     modifier: Modifier,
     label: String,
     value: String,
-    accent: Color,
-    subValue: String? = null
+    accent: Color
 ) {
-    Column(modifier = modifier.padding(horizontal = 8.dp)) {
+    Column(modifier = modifier.padding(horizontal = 12.dp)) {
         Text(
             text = label,
             color = TextSecondary,
@@ -521,13 +512,6 @@ private fun ResultColumn(
             fontWeight = FontWeight.Bold,
             lineHeight = 19.sp
         )
-        if (subValue != null) {
-            Text(
-                text = subValue,
-                color = TextSecondary,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
     }
 }
 
@@ -540,6 +524,9 @@ private fun ResultDivider() {
             .background(BorderDark.copy(alpha = 0.8f))
     )
 }
+
+private fun textColorFor(background: Color): Color =
+    if (background.luminance() > 0.45f) TextOnLight else Color.White
 
 private fun productionAccent(index: Int): Color = when (index % 3) {
     0 -> GreenAccent
@@ -602,9 +589,6 @@ private fun formatRelativeDateTime(dateTime: LocalDateTime): String {
         }
     }
 }
-
-private fun formatNumber(value: Long): String =
-    String.format("%,d", value).replace(',', ' ')
 
 @Preview(showBackground = true)
 @Composable
