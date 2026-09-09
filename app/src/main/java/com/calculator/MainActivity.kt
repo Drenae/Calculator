@@ -135,25 +135,7 @@ private fun ProductionSection(index: Int, production: ProductionState, result: P
             Column(Modifier.padding(16.dp)) {
                 ProductionHeader(index, chainedStart, accent)
                 Spacer(Modifier.height(14.dp))
-                ProductionInputRow(production, accent)
-
-                if (index == 0) {
-                    Spacer(Modifier.height(10.dp))
-                    ProductionTextField(
-                        value = production.alreadyProducedOnCurrentPalette,
-                        onValueChange = { value -> if (value.all(Char::isDigit)) production.alreadyProducedOnCurrentPalette = value },
-                        label = "Déjà produits sur la palette en cours",
-                        modifier = Modifier.fillMaxWidth(),
-                        keyboardType = KeyboardType.Number,
-                        accent = accent
-                    )
-                    Text(
-                        text = "Optionnel — les palettes indiquées ci-dessus sont les palettes complètes restantes.",
-                        color = TextSecondary,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(start = 4.dp, top = 5.dp)
-                    )
-                }
+                ProductionInputRow(production, accent, showCurrentPalette = index == 0)
 
                 Spacer(Modifier.height(14.dp))
                 Text("Empreintes", color = TextSecondary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
@@ -203,18 +185,25 @@ private fun ProductionHeader(index: Int, chainedStart: LocalDateTime?, accent: C
 }
 
 @Composable
-private fun ProductionInputRow(production: ProductionState, accent: Color) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        ProductionTextField(production.paletteCount, { if (it.all(Char::isDigit)) production.paletteCount = it }, "Palettes", Modifier.weight(1f), KeyboardType.Number, accent)
-        ProductionTextField(production.quantityPerPalette, { if (it.all(Char::isDigit)) production.quantityPerPalette = it }, "Quantité / P", Modifier.weight(1.18f), KeyboardType.Number, accent)
+private fun ProductionInputRow(production: ProductionState, accent: Color, showCurrentPalette: Boolean) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        ProductionTextField(production.paletteCount, { if (it.all(Char::isDigit)) production.paletteCount = it }, "Pal", Modifier.weight(1f), KeyboardType.Number, accent)
+        ProductionTextField(production.quantityPerPalette, { if (it.all(Char::isDigit)) production.quantityPerPalette = it }, "Qts/P", Modifier.weight(1.12f), KeyboardType.Number, accent)
         ProductionTextField(
             production.cycleTime,
             { value ->
                 val normalized = value.replace(',', '.')
                 if (normalized.count { it == '.' } <= 1 && normalized.all { it.isDigit() || it == '.' }) production.cycleTime = value
             },
-            "Cycle", Modifier.weight(1f), KeyboardType.Decimal, accent, "s"
+            "s", Modifier.weight(0.9f), KeyboardType.Decimal, accent
         )
+        if (showCurrentPalette) {
+            ProductionTextField(
+                production.alreadyProducedOnCurrentPalette,
+                { if (it.all(Char::isDigit)) production.alreadyProducedOnCurrentPalette = it },
+                "En cours", Modifier.weight(1.18f), KeyboardType.Number, accent
+            )
+        }
     }
 }
 
