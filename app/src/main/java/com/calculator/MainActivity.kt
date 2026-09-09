@@ -93,7 +93,15 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
         modifier = modifier.background(Brush.verticalGradient(listOf(Color(0xFF081522), AppBackground, Color(0xFF050C15)))).padding(horizontal = 14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        item { Spacer(Modifier.height(8.dp)); AppHeader() }
+        item {
+            Spacer(Modifier.height(8.dp))
+            AppHeader(
+                onReset = {
+                    productions.clear()
+                    productions.add(ProductionState())
+                }
+            )
+        }
         itemsIndexed(productions) { index, production ->
             val result = results[index]
             val chainedStart = if (index == 0) null else results.getOrNull(index - 1)?.endTime
@@ -106,16 +114,35 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun AppHeader() {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun AppHeader(onReset: () -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Box(
             Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(Brush.linearGradient(listOf(Color(0xFF46A9FF), Color(0xFF176DE8)))),
             contentAlignment = Alignment.Center
         ) { Text("P", color = Color.White, fontWeight = FontWeight.Black, fontSize = 22.sp) }
         Spacer(Modifier.width(12.dp))
-        Column {
+        Column(Modifier.weight(1f)) {
             Text("Calculateur de production", color = TextPrimary, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text("Calculez. Planifiez. Produisez.", color = Color(0xFF73A8E8), style = MaterialTheme.typography.bodyMedium)
+        }
+        Spacer(Modifier.width(6.dp))
+        TextButton(
+            onClick = onReset,
+            contentPadding = PaddingValues(horizontal = 9.dp, vertical = 6.dp),
+            modifier = Modifier
+                .clip(RoundedCornerShape(11.dp))
+                .background(SurfaceRaised)
+                .border(1.dp, BorderDark, RoundedCornerShape(11.dp))
+        ) {
+            Text(
+                text = "↻ Réinit.",
+                color = TextSecondary,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp
+            )
         }
     }
 }
