@@ -6,40 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,7 +42,6 @@ private val FieldBackground = Color(0xFF101D2C)
 private val BorderDark = Color(0xFF2C4058)
 private val TextPrimary = Color(0xFFF4F7FB)
 private val TextSecondary = Color(0xFF9DB1CC)
-private val BlueAccent = Color(0xFF3295FF)
 private val GreenAccent = Color(0xFF5FE0A7)
 private val PurpleAccent = Color(0xFF8C62FF)
 private val OrangeAccent = Color(0xFFFFB23F)
@@ -80,15 +53,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalculatorTheme(darkTheme = true, dynamicColor = false) {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = AppBackground
-                ) { innerPadding ->
-                    ProductionCalculator(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    )
+                Scaffold(modifier = Modifier.fillMaxSize(), containerColor = AppBackground) { innerPadding ->
+                    ProductionCalculator(Modifier.fillMaxSize().padding(innerPadding))
                 }
             }
         }
@@ -100,6 +66,7 @@ private class ProductionState {
     var quantityPerPalette by mutableStateOf("")
     var cycleTime by mutableStateOf("")
     var cavityCount by mutableIntStateOf(1)
+    var alreadyProducedOnCurrentPalette by mutableStateOf("")
 }
 
 private data class ProductionResult(
@@ -113,253 +80,121 @@ private data class ProductionResult(
 fun ProductionCalculator(modifier: Modifier = Modifier) {
     val productions = remember { mutableStateListOf(ProductionState()) }
     val now = LocalDateTime.now()
-
     val results = mutableListOf<ProductionResult?>()
     var nextStart = now
 
-    productions.forEach { production ->
-        val result = calculateProduction(production, nextStart)
+    productions.forEachIndexed { index, production ->
+        val result = calculateProduction(production, nextStart, includeCurrentPalette = index == 0)
         results += result
-        if (result != null) {
-            nextStart = result.endTime
-        }
+        if (result != null) nextStart = result.endTime
     }
 
     LazyColumn(
-        modifier = modifier
-            .background(
-                Brush.verticalGradient(
-                    listOf(Color(0xFF081522), AppBackground, Color(0xFF050C15))
-                )
-            )
-            .padding(horizontal = 14.dp),
+        modifier = modifier.background(Brush.verticalGradient(listOf(Color(0xFF081522), AppBackground, Color(0xFF050C15)))).padding(horizontal = 14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            AppHeader()
-        }
-
+        item { Spacer(Modifier.height(8.dp)); AppHeader() }
         itemsIndexed(productions) { index, production ->
             val result = results[index]
             val chainedStart = if (index == 0) null else results.getOrNull(index - 1)?.endTime
-
-            ProductionSection(
-                index = index,
-                production = production,
-                result = result,
-                chainedStart = chainedStart,
-                canAddNext = index == productions.lastIndex && result != null,
-                onAddNext = { productions.add(ProductionState()) }
-            )
+            ProductionSection(index, production, result, chainedStart, index == productions.lastIndex && result != null) {
+                productions.add(ProductionState())
+            }
         }
-
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-        }
+        item { Spacer(Modifier.height(24.dp)) }
     }
 }
 
 @Composable
 private fun AppHeader() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(
-            modifier = Modifier
-                .size(46.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    Brush.linearGradient(
-                        listOf(Color(0xFF46A9FF), Color(0xFF176DE8))
-                    )
-                ),
+            Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(Brush.linearGradient(listOf(Color(0xFF46A9FF), Color(0xFF176DE8)))),
             contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "P",
-                color = Color.White,
-                fontWeight = FontWeight.Black,
-                fontSize = 22.sp
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
+        ) { Text("P", color = Color.White, fontWeight = FontWeight.Black, fontSize = 22.sp) }
+        Spacer(Modifier.width(12.dp))
         Column {
-            Text(
-                text = "Calculateur de production",
-                color = TextPrimary,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Calculez. Planifiez. Produisez.",
-                color = Color(0xFF73A8E8),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text("Calculateur de production", color = TextPrimary, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text("Calculez. Planifiez. Produisez.", color = Color(0xFF73A8E8), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProductionSection(
-    index: Int,
-    production: ProductionState,
-    result: ProductionResult?,
-    chainedStart: LocalDateTime?,
-    canAddNext: Boolean,
-    onAddNext: () -> Unit
-) {
+private fun ProductionSection(index: Int, production: ProductionState, result: ProductionResult?, chainedStart: LocalDateTime?, canAddNext: Boolean, onAddNext: () -> Unit) {
     val accent = productionAccent(index)
     val textOnAccent = textColorFor(accent)
-
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(Modifier.fillMaxWidth()) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, accent.copy(alpha = 0.72f), RoundedCornerShape(22.dp)),
+            modifier = Modifier.fillMaxWidth().border(1.dp, accent.copy(alpha = 0.72f), RoundedCornerShape(22.dp)),
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceDark.copy(alpha = 0.96f)),
             elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                ProductionHeader(
-                    index = index,
-                    chainedStart = chainedStart,
-                    accent = accent
-                )
+            Column(Modifier.padding(16.dp)) {
+                ProductionHeader(index, chainedStart, accent)
+                Spacer(Modifier.height(14.dp))
+                ProductionInputRow(production, accent)
 
-                Spacer(modifier = Modifier.height(14.dp))
+                if (index == 0) {
+                    Spacer(Modifier.height(10.dp))
+                    ProductionTextField(
+                        value = production.alreadyProducedOnCurrentPalette,
+                        onValueChange = { value -> if (value.all(Char::isDigit)) production.alreadyProducedOnCurrentPalette = value },
+                        label = "Déjà produits sur la palette en cours",
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardType = KeyboardType.Number,
+                        accent = accent
+                    )
+                    Text(
+                        text = "Optionnel — les palettes indiquées ci-dessus sont les palettes complètes restantes.",
+                        color = TextSecondary,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(start = 4.dp, top = 5.dp)
+                    )
+                }
 
-                ProductionInputRow(production = production, accent = accent)
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Text(
-                    text = "Empreintes",
-                    color = TextSecondary,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Spacer(modifier = Modifier.height(7.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Spacer(Modifier.height(14.dp))
+                Text("Empreintes", color = TextSecondary, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(7.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(1, 2, 4, 12).forEach { value ->
                         FilterChip(
                             selected = production.cavityCount == value,
                             onClick = { production.cavityCount = value },
-                            label = {
-                                Text(
-                                    text = value.toString(),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center,
-                                    fontWeight = if (production.cavityCount == value) FontWeight.Bold else FontWeight.Medium
-                                )
-                            },
+                            label = { Text(value.toString(), Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontWeight = if (production.cavityCount == value) FontWeight.Bold else FontWeight.Medium) },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(11.dp),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = production.cavityCount == value,
-                                borderColor = BorderDark,
-                                selectedBorderColor = accent
-                            ),
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = SurfaceRaised,
-                                labelColor = TextPrimary,
-                                selectedContainerColor = accent,
-                                selectedLabelColor = textOnAccent
-                            )
+                            border = FilterChipDefaults.filterChipBorder(enabled = true, selected = production.cavityCount == value, borderColor = BorderDark, selectedBorderColor = accent),
+                            colors = FilterChipDefaults.filterChipColors(containerColor = SurfaceRaised, labelColor = TextPrimary, selectedContainerColor = accent, selectedLabelColor = textOnAccent)
                         )
                     }
                 }
-
-                if (result != null) {
-                    Spacer(modifier = Modifier.height(14.dp))
-                    ResultCard(result = result, accent = accent)
-                }
+                if (result != null) { Spacer(Modifier.height(14.dp)); ResultCard(result, accent) }
             }
         }
-
         if (result != null && canAddNext) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
             TextButton(
                 onClick = onAddNext,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(Color(0xFF1569D8), Color(0xFF2C91FF))
-                        )
-                    )
-                    .padding(horizontal = 12.dp)
-            ) {
-                Text(
-                    text = "＋  Ajouter une production",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                modifier = Modifier.align(Alignment.CenterHorizontally).clip(RoundedCornerShape(14.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF1569D8), Color(0xFF2C91FF)))).padding(horizontal = 12.dp)
+            ) { Text("＋  Ajouter une production", color = Color.White, fontWeight = FontWeight.Bold) }
         }
     }
 }
 
 @Composable
-private fun ProductionHeader(
-    index: Int,
-    chainedStart: LocalDateTime?,
-    accent: Color
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(
-                    Brush.linearGradient(
-                        listOf(accent.copy(alpha = 0.75f), accent)
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = (index + 1).toString(),
-                color = textColorFor(accent),
-                fontWeight = FontWeight.Black,
-                fontSize = 17.sp
-            )
+private fun ProductionHeader(index: Int, chainedStart: LocalDateTime?, accent: Color) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(38.dp).clip(CircleShape).background(Brush.linearGradient(listOf(accent.copy(alpha = 0.75f), accent))), contentAlignment = Alignment.Center) {
+            Text((index + 1).toString(), color = textColorFor(accent), fontWeight = FontWeight.Black, fontSize = 17.sp)
         }
-
-        Spacer(modifier = Modifier.width(10.dp))
-
+        Spacer(Modifier.width(10.dp))
         Column {
+            Text("Production ${index + 1}", color = TextPrimary, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                text = "Production ${index + 1}",
-                color = TextPrimary,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = if (index == 0) {
-                    "Départ : Maintenant"
-                } else if (chainedStart != null) {
-                    "Départ : ${formatRelativeDateTime(chainedStart)}"
-                } else {
-                    "En attente de la production précédente"
-                },
+                if (index == 0) "Départ : Maintenant" else if (chainedStart != null) "Départ : ${formatRelativeDateTime(chainedStart)}" else "En attente de la production précédente",
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -367,205 +202,89 @@ private fun ProductionHeader(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProductionInputRow(
-    production: ProductionState,
-    accent: Color
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+private fun ProductionInputRow(production: ProductionState, accent: Color) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        ProductionTextField(production.paletteCount, { if (it.all(Char::isDigit)) production.paletteCount = it }, "Palettes", Modifier.weight(1f), KeyboardType.Number, accent)
+        ProductionTextField(production.quantityPerPalette, { if (it.all(Char::isDigit)) production.quantityPerPalette = it }, "Quantité / P", Modifier.weight(1.18f), KeyboardType.Number, accent)
         ProductionTextField(
-            value = production.paletteCount,
-            onValueChange = { value ->
-                if (value.all(Char::isDigit)) production.paletteCount = value
-            },
-            label = "Palettes",
-            modifier = Modifier.weight(1f),
-            keyboardType = KeyboardType.Number,
-            accent = accent
-        )
-
-        ProductionTextField(
-            value = production.quantityPerPalette,
-            onValueChange = { value ->
-                if (value.all(Char::isDigit)) production.quantityPerPalette = value
-            },
-            label = "Quantité / P",
-            modifier = Modifier.weight(1.18f),
-            keyboardType = KeyboardType.Number,
-            accent = accent
-        )
-
-        ProductionTextField(
-            value = production.cycleTime,
-            onValueChange = { value ->
+            production.cycleTime,
+            { value ->
                 val normalized = value.replace(',', '.')
-                if (normalized.count { it == '.' } <= 1 &&
-                    normalized.all { it.isDigit() || it == '.' }
-                ) {
-                    production.cycleTime = value
-                }
+                if (normalized.count { it == '.' } <= 1 && normalized.all { it.isDigit() || it == '.' }) production.cycleTime = value
             },
-            label = "Cycle",
-            modifier = Modifier.weight(1f),
-            keyboardType = KeyboardType.Decimal,
-            accent = accent,
-            suffix = "s"
+            "Cycle", Modifier.weight(1f), KeyboardType.Decimal, accent, "s"
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProductionTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    modifier: Modifier,
-    keyboardType: KeyboardType,
-    accent: Color,
-    suffix: String? = null
-) {
+private fun ProductionTextField(value: String, onValueChange: (String) -> Unit, label: String, modifier: Modifier, keyboardType: KeyboardType, accent: Color, suffix: String? = null) {
     OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        label = { Text(label, maxLines = 1) },
-        suffix = suffix?.let { { Text(it) } },
-        singleLine = true,
-        shape = RoundedCornerShape(13.dp),
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        value = value, onValueChange = onValueChange, modifier = modifier,
+        label = { Text(label, maxLines = 1) }, suffix = suffix?.let { { Text(it) } }, singleLine = true,
+        shape = RoundedCornerShape(13.dp), keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = TextPrimary,
-            unfocusedTextColor = TextPrimary,
-            focusedContainerColor = FieldBackground,
-            unfocusedContainerColor = FieldBackground,
-            focusedBorderColor = accent,
-            unfocusedBorderColor = BorderDark,
-            focusedLabelColor = accent,
-            unfocusedLabelColor = TextSecondary,
-            cursorColor = accent,
-            focusedSuffixColor = TextSecondary,
-            unfocusedSuffixColor = TextSecondary
+            focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary,
+            focusedContainerColor = FieldBackground, unfocusedContainerColor = FieldBackground,
+            focusedBorderColor = accent, unfocusedBorderColor = BorderDark,
+            focusedLabelColor = accent, unfocusedLabelColor = TextSecondary, cursorColor = accent,
+            focusedSuffixColor = TextSecondary, unfocusedSuffixColor = TextSecondary
         )
     )
 }
 
 @Composable
-private fun ResultCard(
-    result: ProductionResult,
-    accent: Color
-) {
+private fun ResultCard(result: ProductionResult, accent: Color) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, accent.copy(alpha = 0.48f), RoundedCornerShape(16.dp)),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = accent.copy(alpha = 0.10f))
+        modifier = Modifier.fillMaxWidth().border(1.dp, accent.copy(alpha = 0.48f), RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = accent.copy(alpha = 0.10f))
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 13.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ResultColumn(
-                modifier = Modifier.weight(1f),
-                label = "Temps de production",
-                value = formatDuration(result.totalSeconds),
-                accent = TextPrimary
-            )
-
+        Row(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            ResultColumn(Modifier.weight(1f), "Temps de production", formatDuration(result.totalSeconds), TextPrimary)
             ResultDivider()
-
-            ResultColumn(
-                modifier = Modifier.weight(1f),
-                label = "Fin estimée",
-                value = formatRelativeDateTime(result.endTime),
-                accent = accent
-            )
+            ResultColumn(Modifier.weight(1f), "Fin estimée", formatRelativeDateTime(result.endTime), accent)
         }
     }
 }
 
 @Composable
-private fun ResultColumn(
-    modifier: Modifier,
-    label: String,
-    value: String,
-    accent: Color
-) {
-    Column(modifier = modifier.padding(horizontal = 12.dp)) {
-        Text(
-            text = label,
-            color = TextSecondary,
-            style = MaterialTheme.typography.labelSmall
-        )
-        Spacer(modifier = Modifier.height(3.dp))
-        Text(
-            text = value,
-            color = accent,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            lineHeight = 19.sp
-        )
+private fun ResultColumn(modifier: Modifier, label: String, value: String, accent: Color) {
+    Column(modifier.padding(horizontal = 12.dp)) {
+        Text(label, color = TextSecondary, style = MaterialTheme.typography.labelSmall)
+        Spacer(Modifier.height(3.dp))
+        Text(value, color = accent, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, lineHeight = 19.sp)
     }
 }
 
 @Composable
-private fun ResultDivider() {
-    Box(
-        modifier = Modifier
-            .width(1.dp)
-            .height(52.dp)
-            .background(BorderDark.copy(alpha = 0.8f))
-    )
-}
+private fun ResultDivider() { Box(Modifier.width(1.dp).height(52.dp).background(BorderDark.copy(alpha = 0.8f))) }
 
-private fun textColorFor(background: Color): Color =
-    if (background.luminance() > 0.45f) TextOnLight else Color.White
+private fun textColorFor(background: Color): Color = if (background.luminance() > 0.45f) TextOnLight else Color.White
+private fun productionAccent(index: Int): Color = when (index % 3) { 0 -> GreenAccent; 1 -> PurpleAccent; else -> OrangeAccent }
 
-private fun productionAccent(index: Int): Color = when (index % 3) {
-    0 -> GreenAccent
-    1 -> PurpleAccent
-    else -> OrangeAccent
-}
-
-private fun calculateProduction(
-    production: ProductionState,
-    startTime: LocalDateTime
-): ProductionResult? {
+private fun calculateProduction(production: ProductionState, startTime: LocalDateTime, includeCurrentPalette: Boolean = false): ProductionResult? {
     val palettes = production.paletteCount.toLongOrNull()
     val quantity = production.quantityPerPalette.toLongOrNull()
     val cycleSeconds = production.cycleTime.replace(',', '.').toDoubleOrNull()
+    val alreadyProduced = production.alreadyProducedOnCurrentPalette.toLongOrNull() ?: 0L
 
-    if (palettes == null || palettes <= 0 ||
-        quantity == null || quantity <= 0 ||
-        cycleSeconds == null || cycleSeconds <= 0
-    ) {
-        return null
-    }
+    if (palettes == null || palettes < 0 || quantity == null || quantity <= 0 || cycleSeconds == null || cycleSeconds <= 0) return null
+    if (includeCurrentPalette && (alreadyProduced < 0 || alreadyProduced >= quantity)) return null
 
-    val totalQuantity = palettes * quantity
+    val currentPaletteRemaining = if (includeCurrentPalette && alreadyProduced > 0) quantity - alreadyProduced else 0L
+    val totalQuantity = (palettes * quantity) + currentPaletteRemaining
+    if (totalQuantity <= 0) return null
+
     val cycleCount = ceil(totalQuantity.toDouble() / production.cavityCount).toLong()
     val totalSeconds = (cycleCount * cycleSeconds).roundToLong()
-
-    return ProductionResult(
-        totalQuantity = totalQuantity,
-        totalSeconds = totalSeconds,
-        startTime = startTime,
-        endTime = startTime.plusSeconds(totalSeconds)
-    )
+    return ProductionResult(totalQuantity, totalSeconds, startTime, startTime.plusSeconds(totalSeconds))
 }
 
 private fun formatDuration(totalSeconds: Long): String {
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
     val seconds = totalSeconds % 60
-
     return buildString {
         if (hours > 0) append("${hours} h ")
         if (minutes > 0 || hours > 0) append("${minutes} min ")
@@ -577,14 +296,11 @@ private fun formatRelativeDateTime(dateTime: LocalDateTime): String {
     val time = dateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
     val today = LocalDate.now()
     val dayDifference = ChronoUnit.DAYS.between(today, dateTime.toLocalDate())
-
     return when (dayDifference) {
         0L -> "Aujourd'hui à $time"
         1L -> "Demain à $time"
         else -> {
-            val dayName = dateTime.format(
-                DateTimeFormatter.ofPattern("EEEE", Locale.FRENCH)
-            ).replaceFirstChar { it.uppercase(Locale.FRENCH) }
+            val dayName = dateTime.format(DateTimeFormatter.ofPattern("EEEE", Locale.FRENCH)).replaceFirstChar { it.uppercase(Locale.FRENCH) }
             "$dayName à $time"
         }
     }
@@ -593,7 +309,5 @@ private fun formatRelativeDateTime(dateTime: LocalDateTime): String {
 @Preview(showBackground = true)
 @Composable
 fun ProductionCalculatorPreview() {
-    CalculatorTheme(darkTheme = true, dynamicColor = false) {
-        ProductionCalculator(modifier = Modifier.fillMaxSize())
-    }
+    CalculatorTheme(darkTheme = true, dynamicColor = false) { ProductionCalculator(Modifier.fillMaxSize()) }
 }
