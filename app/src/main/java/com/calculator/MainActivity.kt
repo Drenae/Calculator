@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -223,21 +224,22 @@ private fun ProductionSection(
 
         if (result != null) {
             Spacer(modifier = Modifier.height(14.dp))
-            ResultCard(
-                result = result,
-                showAddButton = canAddNext,
-                onAddNext = onAddNext
-            )
+            ResultCard(result = result)
+
+            if (canAddNext) {
+                TextButton(
+                    onClick = onAddNext,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("+ Ajouter une production")
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ResultCard(
-    result: ProductionResult,
-    showAddButton: Boolean,
-    onAddNext: () -> Unit
-) {
+private fun ResultCard(result: ProductionResult) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -258,13 +260,6 @@ private fun ResultCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-
-            if (showAddButton) {
-                Spacer(modifier = Modifier.height(4.dp))
-                TextButton(onClick = onAddNext) {
-                    Text("+ Ajouter une production")
-                }
-            }
         }
     }
 }
