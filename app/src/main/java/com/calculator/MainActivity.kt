@@ -178,7 +178,7 @@ private fun ProductionSection(index: Int, production: ProductionState, result: P
                     )
                 }
         ) {
-            Column(Modifier.padding(16.dp)) {
+            Column(Modifier.padding(10.dp)) {
                 ProductionHeader(index, chainedStart, accent)
                 Spacer(Modifier.height(14.dp))
                 ProductionInputRow(production, accent, showCurrentPalette = index == 0)
