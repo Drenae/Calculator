@@ -3,16 +3,12 @@ package com.calculator.ui.layout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.LocalShipping
-import androidx.compose.material.icons.filled.PendingActions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.calculator.R
 import com.calculator.state.ProductionState
 import com.calculator.ui.components.ProductionTextField
 
@@ -35,7 +31,7 @@ fun ProductionInputRow(
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Number,
             accent = accent,
-            leadingIcon = Icons.Filled.LocalShipping
+            leadingIcon = R.drawable.ic_palette
         )
 
         ProductionTextField(
@@ -47,7 +43,7 @@ fun ProductionInputRow(
             modifier = Modifier.weight(1.12f),
             keyboardType = KeyboardType.Number,
             accent = accent,
-            leadingIcon = Icons.Filled.Inventory2
+            leadingIcon = R.drawable.ic_quantity_box
         )
 
         ProductionTextField(
@@ -65,7 +61,7 @@ fun ProductionInputRow(
             modifier = Modifier.weight(0.9f),
             keyboardType = KeyboardType.Decimal,
             accent = accent,
-            leadingIcon = Icons.Filled.AccessTime
+            leadingIcon = R.drawable.ic_cycle_time
         )
 
         if (showCurrentPalette) {
@@ -78,7 +74,7 @@ fun ProductionInputRow(
                 modifier = Modifier.weight(1.18f),
                 keyboardType = KeyboardType.Number,
                 accent = accent,
-                leadingIcon = Icons.Filled.PendingActions
+                leadingIcon = R.drawable.ic_current_palette
             )
         }
     }
