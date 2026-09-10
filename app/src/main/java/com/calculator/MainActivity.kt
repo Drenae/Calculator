@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
@@ -90,7 +91,7 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
     }
 
     LazyColumn(
-        modifier = modifier.background(Brush.verticalGradient(listOf(Color(0xFF081522), AppBackground, Color(0xFF050C15)))).padding(horizontal = 14.dp),
+        modifier = modifier.background(Brush.verticalGradient(listOf(Color(0xFF081522), AppBackground, Color(0xFF050C15)))),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
@@ -116,7 +117,18 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
 @Composable
 private fun AppHeader(onReset: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp),
+        Modifier
+            .fillMaxWidth()
+            .drawBehind {
+                val strokeWidth = 1.dp.toPx()
+                drawLine(
+                    color = BorderDark,
+                    start = androidx.compose.ui.geometry.Offset(0f, size.height - strokeWidth / 2),
+                    end = androidx.compose.ui.geometry.Offset(size.width, size.height - strokeWidth / 2),
+                    strokeWidth = strokeWidth
+                )
+            }
+            .padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -154,7 +166,17 @@ private fun ProductionSection(index: Int, production: ProductionState, result: P
     val textOnAccent = textColorFor(accent)
     Column(Modifier.fillMaxWidth()) {
         Card(
-            modifier = Modifier.fillMaxWidth().border(1.dp, accent.copy(alpha = 0.72f), RoundedCornerShape(22.dp)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    val strokeWidth = 1.dp.toPx()
+                    drawLine(
+                        color = accent.copy(alpha = 0.72f),
+                        start = androidx.compose.ui.geometry.Offset(0f, size.height - strokeWidth / 2),
+                        end = androidx.compose.ui.geometry.Offset(size.width, size.height - strokeWidth / 2),
+                        strokeWidth = strokeWidth
+                    )
+                },
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceDark.copy(alpha = 0.96f)),
             elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
