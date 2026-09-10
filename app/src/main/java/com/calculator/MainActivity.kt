@@ -91,8 +91,7 @@ fun ProductionCalculator(modifier: Modifier = Modifier) {
     }
 
     LazyColumn(
-        modifier = modifier.background(Brush.verticalGradient(listOf(Color(0xFF081522), AppBackground, Color(0xFF050C15)))),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        modifier = modifier.background(Brush.verticalGradient(listOf(Color(0xFF081522), AppBackground, Color(0xFF050C15))))
     ) {
         item {
             Spacer(Modifier.height(8.dp))
@@ -165,9 +164,10 @@ private fun ProductionSection(index: Int, production: ProductionState, result: P
     val accent = productionAccent(index)
     val textOnAccent = textColorFor(accent)
     Column(Modifier.fillMaxWidth()) {
-        Card(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(SurfaceDark.copy(alpha = 0.96f))
                 .drawBehind {
                     val strokeWidth = 1.dp.toPx()
                     drawLine(
@@ -176,10 +176,7 @@ private fun ProductionSection(index: Int, production: ProductionState, result: P
                         end = androidx.compose.ui.geometry.Offset(size.width, size.height - strokeWidth / 2),
                         strokeWidth = strokeWidth
                     )
-                },
-            shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceDark.copy(alpha = 0.96f)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                }
         ) {
             Column(Modifier.padding(16.dp)) {
                 ProductionHeader(index, chainedStart, accent)
