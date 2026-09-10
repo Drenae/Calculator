@@ -2,12 +2,14 @@ package com.calculator.ui.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.calculator.ui.theme.BorderDark
@@ -23,6 +25,7 @@ fun ProductionTextField(
     modifier: Modifier,
     keyboardType: KeyboardType,
     accent: Color,
+    leadingIcon: ImageVector? = null,
     suffix: String? = null
 ) {
     OutlinedTextField(
@@ -30,6 +33,14 @@ fun ProductionTextField(
         onValueChange = onValueChange,
         modifier = modifier,
         label = { Text(label, maxLines = 1) },
+        leadingIcon = leadingIcon?.let {
+            {
+                Icon(
+                    imageVector = it,
+                    contentDescription = null
+                )
+            }
+        },
         suffix = suffix?.let { { Text(it) } },
         singleLine = true,
         shape = RoundedCornerShape(13.dp),
@@ -44,6 +55,8 @@ fun ProductionTextField(
             focusedLabelColor = accent,
             unfocusedLabelColor = TextSecondary,
             cursorColor = accent,
+            focusedLeadingIconColor = accent,
+            unfocusedLeadingIconColor = TextSecondary,
             focusedSuffixColor = TextSecondary,
             unfocusedSuffixColor = TextSecondary
         )
