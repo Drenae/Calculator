@@ -3,7 +3,11 @@ package com.calculator.ui.layout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.LocalShipping
+import androidx.compose.material.icons.filled.PendingActions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,7 +34,8 @@ fun ProductionInputRow(
             label = "Pal",
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Number,
-            accent = accent
+            accent = accent,
+            leadingIcon = Icons.Filled.LocalShipping
         )
 
         ProductionTextField(
@@ -41,7 +46,8 @@ fun ProductionInputRow(
             label = "Qts/P",
             modifier = Modifier.weight(1.12f),
             keyboardType = KeyboardType.Number,
-            accent = accent
+            accent = accent,
+            leadingIcon = Icons.Filled.Inventory2
         )
 
         ProductionTextField(
@@ -58,7 +64,8 @@ fun ProductionInputRow(
             label = "s",
             modifier = Modifier.weight(0.9f),
             keyboardType = KeyboardType.Decimal,
-            accent = accent
+            accent = accent,
+            leadingIcon = Icons.Filled.AccessTime
         )
 
         if (showCurrentPalette) {
@@ -70,7 +77,8 @@ fun ProductionInputRow(
                 label = "En cours",
                 modifier = Modifier.weight(1.18f),
                 keyboardType = KeyboardType.Number,
-                accent = accent
+                accent = accent,
+                leadingIcon = Icons.Filled.PendingActions
             )
         }
     }
