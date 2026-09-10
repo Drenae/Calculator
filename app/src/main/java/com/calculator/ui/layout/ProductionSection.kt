@@ -1,45 +1,31 @@
 package com.calculator.ui.layout
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.calculator.model.ProductionResult
 import com.calculator.state.ProductionState
+import com.calculator.ui.components.AddProductionButton
+import com.calculator.ui.components.CavitySelector
 import com.calculator.ui.components.ResultCard
-import com.calculator.ui.theme.BorderDark
 import com.calculator.ui.theme.SurfaceDark
-import com.calculator.ui.theme.SurfaceRaised
-import com.calculator.ui.theme.TextPrimary
 import com.calculator.ui.theme.TextSecondary
 import com.calculator.ui.theme.productionAccent
-import com.calculator.ui.theme.textColorFor
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductionSection(
     index: Int,
@@ -50,7 +36,6 @@ fun ProductionSection(
     onAddNext: () -> Unit
 ) {
     val accent = productionAccent(index)
-    val textOnAccent = textColorFor(accent)
 
     Column(Modifier.fillMaxWidth()) {
         Box(
@@ -68,7 +53,11 @@ fun ProductionSection(
                 }
         ) {
             Column(Modifier.padding(10.dp)) {
-                ProductionHeader(index, chainedStart, accent)
+                ProductionHeader(
+                    index = index,
+                    chainedStart = chainedStart,
+                    accent = accent
+                )
 
                 Spacer(Modifier.height(14.dp))
 
@@ -89,71 +78,25 @@ fun ProductionSection(
 
                 Spacer(Modifier.height(7.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    listOf(1, 2, 4, 12).forEach { value ->
-                        FilterChip(
-                            selected = production.cavityCount == value,
-                            onClick = { production.cavityCount = value },
-                            label = {
-                                Text(
-                                    text = value.toString(),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center,
-                                    fontWeight = if (production.cavityCount == value) {
-                                        FontWeight.Bold
-                                    } else {
-                                        FontWeight.Medium
-                                    }
-                                )
-                            },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(11.dp),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = production.cavityCount == value,
-                                borderColor = BorderDark,
-                                selectedBorderColor = accent
-                            ),
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = SurfaceRaised,
-                                labelColor = TextPrimary,
-                                selectedContainerColor = accent,
-                                selectedLabelColor = textOnAccent
-                            )
-                        )
-                    }
-                }
+                CavitySelector(
+                    selectedCavityCount = production.cavityCount,
+                    accent = accent,
+                    onCavitySelected = { production.cavityCount = it }
+                )
 
                 if (result != null) {
                     Spacer(Modifier.height(14.dp))
-                    ResultCard(result, accent)
+                    ResultCard(result = result, accent = accent)
                 }
             }
         }
 
         if (result != null && canAddNext) {
             Spacer(Modifier.height(8.dp))
-            TextButton(
-                onClick = onAddNext,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(Color(0xFF1569D8), Color(0xFF2C91FF))
-                        )
-                    )
-                    .padding(horizontal = 12.dp)
-            ) {
-                Text(
-                    text = "＋  Ajouter une production",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            AddProductionButton(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = onAddNext
+            )
         }
     }
 }
