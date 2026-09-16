@@ -23,10 +23,15 @@ fun calculateProduction(
     val totalQuantity = palettes * quantity
     val cycleCount = ceil(totalQuantity.toDouble() / production.cavityCount).toLong()
     val totalSeconds = (cycleCount * cycleSeconds).roundToLong()
+    val paletteCycleCount = ceil(quantity.toDouble() / production.cavityCount).toLong()
+    val paletteSeconds = (paletteCycleCount * cycleSeconds).roundToLong()
+    val unitsPerHour = production.cavityCount * 3600.0 / cycleSeconds
 
     return ProductionResult(
         totalQuantity = totalQuantity,
         totalSeconds = totalSeconds,
+        paletteSeconds = paletteSeconds,
+        unitsPerHour = unitsPerHour,
         startTime = startTime,
         endTime = startTime.plusSeconds(totalSeconds)
     )
