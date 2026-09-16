@@ -8,81 +8,60 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.calculator.model.ProductionResult
 import com.calculator.state.ProductionState
-import com.calculator.ui.components.AddProductionButton
 import com.calculator.ui.components.CavitySelector
 import com.calculator.ui.components.ResultCard
 import com.calculator.ui.theme.SurfaceDark
 import com.calculator.ui.theme.productionAccent
-import java.time.LocalDateTime
 
 @Composable
 fun ProductionSection(
-    index: Int,
     production: ProductionState,
-    result: ProductionResult?,
-    chainedStart: LocalDateTime?,
-    canAddNext: Boolean,
-    onAddNext: () -> Unit
+    result: ProductionResult?
 ) {
-    val accent = productionAccent(index)
+    val accent = productionAccent(0)
 
-    Column(Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(SurfaceDark.copy(alpha = 0.96f))
-                .drawBehind {
-                    val strokeWidth = 1.dp.toPx()
-                    drawLine(
-                        color = accent.copy(alpha = 0.72f),
-                        start = Offset(0f, size.height - strokeWidth / 2),
-                        end = Offset(size.width, size.height - strokeWidth / 2),
-                        strokeWidth = strokeWidth
-                    )
-                }
-        ) {
-            Column(Modifier.padding(10.dp)) {
-                ProductionHeader(
-                    index = index,
-                    chainedStart = chainedStart,
-                    accent = accent
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(SurfaceDark.copy(alpha = 0.96f))
+            .drawBehind {
+                val strokeWidth = 1.dp.toPx()
+                drawLine(
+                    color = accent.copy(alpha = 0.72f),
+                    start = Offset(0f, size.height - strokeWidth / 2),
+                    end = Offset(size.width, size.height - strokeWidth / 2),
+                    strokeWidth = strokeWidth
                 )
-
-                Spacer(Modifier.height(14.dp))
-
-                ProductionInputRow(
-                    production = production,
-                    accent = accent
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                CavitySelector(
-                    selectedCavityCount = production.cavityCount,
-                    accent = accent,
-                    onCavitySelected = { production.cavityCount = it }
-                )
-
-                if (result != null) {
-                    Spacer(Modifier.height(14.dp))
-                    ResultCard(result = result, accent = accent)
-                }
             }
-        }
+    ) {
+        Column(Modifier.padding(10.dp)) {
+            ProductionHeader(accent = accent)
 
-        if (result != null && canAddNext) {
-            Spacer(Modifier.height(8.dp))
-            AddProductionButton(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = onAddNext
+            Spacer(Modifier.height(14.dp))
+
+            ProductionInputRow(
+                production = production,
+                accent = accent
             )
+
+            Spacer(Modifier.height(14.dp))
+
+            CavitySelector(
+                selectedCavityCount = production.cavityCount,
+                accent = accent,
+                onCavitySelected = { production.cavityCount = it }
+            )
+
+            if (result != null) {
+                Spacer(Modifier.height(14.dp))
+                ResultCard(result = result, accent = accent)
+            }
         }
     }
 }
