@@ -1,13 +1,14 @@
 package com.calculator.ui.layout
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.calculator.R
 import com.calculator.state.ProductionState
 import com.calculator.ui.components.ProductionTextField
 
@@ -16,19 +17,20 @@ fun ProductionInputRow(
     production: ProductionState,
     accent: Color
 ) {
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         ProductionTextField(
             value = production.paletteCount,
             onValueChange = {
                 if (it.all(Char::isDigit)) production.paletteCount = it
             },
-            label = "Palettes",
-            modifier = Modifier.weight(1f),
+            label = "Nombre de palettes",
+            modifier = Modifier.fillMaxWidth(),
             keyboardType = KeyboardType.Number,
-            accent = accent
+            accent = accent,
+            leadingIcon = R.drawable.ic_palette
         )
 
         ProductionTextField(
@@ -36,10 +38,11 @@ fun ProductionInputRow(
             onValueChange = {
                 if (it.all(Char::isDigit)) production.quantityPerPalette = it
             },
-            label = "Qté / palette",
-            modifier = Modifier.weight(1f),
+            label = "Quantité par palette",
+            modifier = Modifier.fillMaxWidth(),
             keyboardType = KeyboardType.Number,
-            accent = accent
+            accent = accent,
+            leadingIcon = R.drawable.ic_quantity_box
         )
 
         ProductionTextField(
@@ -53,10 +56,12 @@ fun ProductionInputRow(
                     production.cycleTime = value
                 }
             },
-            label = "Cycle (s)",
-            modifier = Modifier.weight(1f),
+            label = "Temps de cycle",
+            modifier = Modifier.fillMaxWidth(),
             keyboardType = KeyboardType.Decimal,
-            accent = accent
+            accent = accent,
+            leadingIcon = R.drawable.ic_cycle_time,
+            suffix = "s"
         )
     }
 }
