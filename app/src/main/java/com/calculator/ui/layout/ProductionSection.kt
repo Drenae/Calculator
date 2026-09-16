@@ -7,14 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.calculator.model.ProductionResult
 import com.calculator.state.ProductionState
@@ -22,7 +19,6 @@ import com.calculator.ui.components.AddProductionButton
 import com.calculator.ui.components.CavitySelector
 import com.calculator.ui.components.ResultCard
 import com.calculator.ui.theme.SurfaceDark
-import com.calculator.ui.theme.TextSecondary
 import com.calculator.ui.theme.productionAccent
 import java.time.LocalDateTime
 
@@ -67,15 +63,6 @@ fun ProductionSection(
                 )
 
                 Spacer(Modifier.height(14.dp))
-
-                Text(
-                    text = "Empreintes",
-                    color = TextSecondary,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Spacer(Modifier.height(7.dp))
 
                 CavitySelector(
                     selectedCavityCount = production.cavityCount,
