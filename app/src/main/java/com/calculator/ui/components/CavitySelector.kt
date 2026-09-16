@@ -2,21 +2,23 @@ package com.calculator.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.calculator.ui.theme.BorderDark
 import com.calculator.ui.theme.SurfaceRaised
 import com.calculator.ui.theme.TextPrimary
+import com.calculator.ui.theme.TextSecondary
 import com.calculator.ui.theme.textColorFor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,9 +29,16 @@ fun CavitySelector(
     onCavitySelected: (Int) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
+        Text(
+            text = "Empreintes",
+            color = TextSecondary,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold
+        )
+
         listOf(1, 2, 4, 12).forEach { value ->
             val selected = selectedCavityCount == value
 
@@ -39,8 +48,6 @@ fun CavitySelector(
                 label = {
                     Text(
                         text = value.toString(),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
                     )
                 },
