@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,15 +34,21 @@ fun CavitySelector(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Nombre d'empreintes",
-            color = TextSecondary,
-            style = MaterialTheme.typography.labelLarge,
+            color = TextPrimary,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Sélectionnez le nombre de pièces produites par cycle",
+            color = TextSecondary,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 2.dp)
         )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 7.dp),
+                .padding(top = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             listOf(1, 2, 4, 12).forEach { value ->
@@ -55,11 +62,13 @@ fun CavitySelector(
                             text = value.toString(),
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center,
-                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold
                         )
                     },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(11.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(14.dp),
                     border = FilterChipDefaults.filterChipBorder(
                         enabled = true,
                         selected = selected,
@@ -67,7 +76,7 @@ fun CavitySelector(
                         selectedBorderColor = accent
                     ),
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = SurfaceRaised,
+                        containerColor = SurfaceRaised.copy(alpha = 0.80f),
                         labelColor = TextPrimary,
                         selectedContainerColor = accent,
                         selectedLabelColor = textColorFor(accent)
