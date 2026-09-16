@@ -9,5 +9,5 @@ class ProductionState {
     var paletteCount by mutableStateOf("")
     var quantityPerPalette by mutableStateOf("")
     var cycleTime by mutableStateOf("")
-    var cavityCount by mutableIntStateOf(1)
+    var cavityCount by mutableIntStateOf(2)
 }
