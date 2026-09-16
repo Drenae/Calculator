@@ -30,11 +30,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     val results = mutableListOf<ProductionResult?>()
     var nextStart = now
 
-    productions.forEachIndexed { index, production ->
+    productions.forEach { production ->
         val result = calculateProduction(
             production = production,
-            startTime = nextStart,
-            includeCurrentPalette = index == 0
+            startTime = nextStart
         )
         results += result
         if (result != null) nextStart = result.endTime
