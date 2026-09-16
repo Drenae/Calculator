@@ -28,6 +28,7 @@ import com.calculator.ui.theme.TextPrimary
 import com.calculator.ui.theme.TextSecondary
 import com.calculator.util.formatDuration
 import com.calculator.util.formatRelativeDateTime
+import java.util.Locale
 
 @Composable
 fun ResultCard(result: ProductionResult, accent: Color) {
@@ -44,31 +45,46 @@ fun ResultCard(result: ProductionResult, accent: Color) {
                 .padding(horizontal = 13.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ResultColumn(
-                modifier = Modifier.weight(1f),
-                label = "Temps de production",
-                value = formatDuration(result.totalSeconds),
-                accent = TextPrimary
-            )
+            Column(Modifier.weight(1f)) {
+                ResultItem(
+                    label = "Temps d'une palette",
+                    value = formatDuration(result.paletteSeconds),
+                    accent = TextPrimary
+                )
+                Spacer(Modifier.height(12.dp))
+                ResultItem(
+                    label = "Seaux à l'heure",
+                    value = String.format(Locale.getDefault(), "%.0f", result.unitsPerHour),
+                    accent = TextPrimary
+                )
+            }
+
             ResultDivider()
-            ResultColumn(
-                modifier = Modifier.weight(1f),
-                label = "Fin estimée",
-                value = formatRelativeDateTime(result.endTime),
-                accent = accent
-            )
+
+            Column(Modifier.weight(1f)) {
+                ResultItem(
+                    label = "Temps de production",
+                    value = formatDuration(result.totalSeconds),
+                    accent = TextPrimary
+                )
+                Spacer(Modifier.height(12.dp))
+                ResultItem(
+                    label = "Fin estimée",
+                    value = formatRelativeDateTime(result.endTime),
+                    accent = accent
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ResultColumn(
-    modifier: Modifier,
+private fun ResultItem(
     label: String,
     value: String,
     accent: Color
 ) {
-    Column(modifier.padding(horizontal = 12.dp)) {
+    Column(Modifier.padding(horizontal = 12.dp)) {
         Text(label, color = TextSecondary, style = MaterialTheme.typography.labelSmall)
         Spacer(Modifier.height(3.dp))
         Text(
@@ -86,7 +102,7 @@ private fun ResultDivider() {
     Box(
         Modifier
             .width(1.dp)
-            .height(52.dp)
+            .height(116.dp)
             .background(BorderDark.copy(alpha = 0.8f))
     )
 }
