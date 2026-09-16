@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.calculator.R
 import com.calculator.state.ProductionState
 import com.calculator.ui.components.ProductionTextField
 
@@ -29,8 +28,7 @@ fun ProductionInputRow(
             label = "Pal",
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Number,
-            accent = accent,
-            leadingIcon = R.drawable.ic_palette
+            accent = accent
         )
 
         ProductionTextField(
@@ -41,8 +39,7 @@ fun ProductionInputRow(
             label = "Qts/P",
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Number,
-            accent = accent,
-            leadingIcon = R.drawable.ic_quantity_box
+            accent = accent
         )
 
         ProductionTextField(
@@ -59,8 +56,7 @@ fun ProductionInputRow(
             label = "s",
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Decimal,
-            accent = accent,
-            leadingIcon = R.drawable.ic_cycle_time
+            accent = accent
         )
     }
 }
