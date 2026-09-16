@@ -15,8 +15,7 @@ import com.calculator.ui.components.ProductionTextField
 @Composable
 fun ProductionInputRow(
     production: ProductionState,
-    accent: Color,
-    showCurrentPalette: Boolean
+    accent: Color
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -40,7 +39,7 @@ fun ProductionInputRow(
                 if (it.all(Char::isDigit)) production.quantityPerPalette = it
             },
             label = "Qts/P",
-            modifier = Modifier.weight(1.12f),
+            modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Number,
             accent = accent,
             leadingIcon = R.drawable.ic_quantity_box
@@ -58,24 +57,10 @@ fun ProductionInputRow(
                 }
             },
             label = "s",
-            modifier = Modifier.weight(0.9f),
+            modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Decimal,
             accent = accent,
             leadingIcon = R.drawable.ic_cycle_time
         )
-
-        if (showCurrentPalette) {
-            ProductionTextField(
-                value = production.alreadyProducedOnCurrentPalette,
-                onValueChange = {
-                    if (it.all(Char::isDigit)) production.alreadyProducedOnCurrentPalette = it
-                },
-                label = "En cours",
-                modifier = Modifier.weight(1.18f),
-                keyboardType = KeyboardType.Number,
-                accent = accent,
-                leadingIcon = R.drawable.ic_current_palette
-            )
-        }
     }
 }
