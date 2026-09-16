@@ -25,7 +25,7 @@ fun ProductionInputRow(
             onValueChange = {
                 if (it.all(Char::isDigit)) production.paletteCount = it
             },
-            label = "Pal",
+            label = "Palettes",
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Number,
             accent = accent
@@ -36,7 +36,7 @@ fun ProductionInputRow(
             onValueChange = {
                 if (it.all(Char::isDigit)) production.quantityPerPalette = it
             },
-            label = "Qts/P",
+            label = "Qté / palette",
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Number,
             accent = accent
@@ -53,7 +53,7 @@ fun ProductionInputRow(
                     production.cycleTime = value
                 }
             },
-            label = "s",
+            label = "Cycle (s)",
             modifier = Modifier.weight(1f),
             keyboardType = KeyboardType.Decimal,
             accent = accent
