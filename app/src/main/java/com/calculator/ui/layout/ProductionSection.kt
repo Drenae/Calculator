@@ -63,8 +63,7 @@ fun ProductionSection(
 
                 ProductionInputRow(
                     production = production,
-                    accent = accent,
-                    showCurrentPalette = index == 0
+                    accent = accent
                 )
 
                 Spacer(Modifier.height(14.dp))
