@@ -2,7 +2,7 @@ package com.calculator.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -40,32 +40,46 @@ fun CavitySelector(
         )
 
         listOf(1, 2, 4, 12).forEach { value ->
-            val selected = selectedCavityCount == value
-
-            FilterChip(
-                selected = selected,
-                onClick = { onCavitySelected(value) },
-                label = {
-                    Text(
-                        text = value.toString(),
-                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
-                    )
-                },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(11.dp),
-                border = FilterChipDefaults.filterChipBorder(
-                    enabled = true,
-                    selected = selected,
-                    borderColor = BorderDark,
-                    selectedBorderColor = accent
-                ),
-                colors = FilterChipDefaults.filterChipColors(
-                    containerColor = SurfaceRaised,
-                    labelColor = TextPrimary,
-                    selectedContainerColor = accent,
-                    selectedLabelColor = textColorFor(accent)
-                )
+            CavityChip(
+                value = value,
+                selected = selectedCavityCount == value,
+                accent = accent,
+                onClick = { onCavitySelected(value) }
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RowScope.CavityChip(
+    value: Int,
+    selected: Boolean,
+    accent: Color,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = {
+            Text(
+                text = value.toString(),
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+            )
+        },
+        modifier = Modifier.weight(1f),
+        shape = RoundedCornerShape(11.dp),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selected,
+            borderColor = BorderDark,
+            selectedBorderColor = accent
+        ),
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = SurfaceRaised,
+            labelColor = TextPrimary,
+            selectedContainerColor = accent,
+            selectedLabelColor = textColorFor(accent)
+        )
+    )
 }
