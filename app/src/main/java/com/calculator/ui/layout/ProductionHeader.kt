@@ -1,7 +1,6 @@
 package com.calculator.ui.layout
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,20 +22,14 @@ import androidx.compose.ui.unit.sp
 import com.calculator.ui.theme.TextPrimary
 import com.calculator.ui.theme.TextSecondary
 import com.calculator.ui.theme.textColorFor
-import com.calculator.util.formatRelativeDateTime
-import java.time.LocalDateTime
 
 @Composable
-fun ProductionHeader(
-    index: Int,
-    chainedStart: LocalDateTime?,
-    accent: Color
-) {
+fun ProductionHeader(accent: Color) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        androidx.compose.foundation.layout.Box(
             modifier = Modifier
                 .size(38.dp)
                 .clip(CircleShape)
@@ -48,7 +41,7 @@ fun ProductionHeader(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = (index + 1).toString(),
+                text = "P",
                 color = textColorFor(accent),
                 fontWeight = FontWeight.Black,
                 fontSize = 17.sp
@@ -59,17 +52,13 @@ fun ProductionHeader(
 
         Column {
             Text(
-                text = "Production ${index + 1}",
+                text = "Production",
                 color = TextPrimary,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = when {
-                    index == 0 -> "Départ : Maintenant"
-                    chainedStart != null -> "Départ : ${formatRelativeDateTime(chainedStart)}"
-                    else -> "En attente de la production précédente"
-                },
+                text = "Départ : Maintenant",
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
