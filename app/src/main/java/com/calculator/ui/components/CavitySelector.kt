@@ -38,17 +38,11 @@ fun CavitySelector(
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold
         )
-        Text(
-            text = "Sélectionnez le nombre de pièces produites par cycle",
-            color = TextSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 2.dp)
-        )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp),
+                .padding(top = 9.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             listOf(1, 2, 4, 12).forEach { value ->
@@ -67,8 +61,8 @@ fun CavitySelector(
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(14.dp),
+                        .height(46.dp),
+                    shape = RoundedCornerShape(12.dp),
                     border = FilterChipDefaults.filterChipBorder(
                         enabled = true,
                         selected = selected,
@@ -76,8 +70,8 @@ fun CavitySelector(
                         selectedBorderColor = accent
                     ),
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = SurfaceRaised.copy(alpha = 0.80f),
-                        labelColor = TextPrimary,
+                        containerColor = SurfaceRaised,
+                        labelColor = TextSecondary,
                         selectedContainerColor = accent,
                         selectedLabelColor = textColorFor(accent)
                     )
