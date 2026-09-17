@@ -24,12 +24,8 @@ fun ProductionSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
-        ProductionHeader(accent = accent)
-
-        Spacer(Modifier.height(18.dp))
-
         ProductionInputRow(
             production = production,
             accent = accent
