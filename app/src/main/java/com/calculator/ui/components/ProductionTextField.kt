@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -50,14 +49,17 @@ fun ProductionTextField(
             {
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
-                        .background(accent.copy(alpha = 0.10f), RoundedCornerShape(12.dp)),
+                        .size(40.dp)
+                        .background(
+                            color = accent.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(10.dp)
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
                         painter = painterResource(iconRes),
                         contentDescription = null,
-                        modifier = Modifier.size(29.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
@@ -71,15 +73,15 @@ fun ProductionTextField(
             }
         },
         singleLine = true,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = TextPrimary,
             unfocusedTextColor = TextPrimary,
-            focusedContainerColor = FieldBackground.copy(alpha = 0.92f),
-            unfocusedContainerColor = FieldBackground.copy(alpha = 0.78f),
+            focusedContainerColor = FieldBackground,
+            unfocusedContainerColor = FieldBackground,
             focusedBorderColor = accent,
-            unfocusedBorderColor = BorderDark.copy(alpha = 0.90f),
+            unfocusedBorderColor = BorderDark,
             focusedLabelColor = accent,
             unfocusedLabelColor = TextSecondary,
             cursorColor = accent,
