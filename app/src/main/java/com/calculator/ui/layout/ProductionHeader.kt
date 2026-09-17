@@ -1,6 +1,7 @@
 package com.calculator.ui.layout
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,26 +29,22 @@ fun ProductionHeader(accent: Color) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        androidx.compose.foundation.layout.Box(
+        Box(
             modifier = Modifier
-                .size(38.dp)
+                .size(36.dp)
                 .clip(CircleShape)
-                .background(
-                    Brush.linearGradient(
-                        listOf(accent.copy(alpha = 0.75f), accent)
-                    )
-                ),
+                .background(accent.copy(alpha = 0.14f)),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "P",
-                color = textColorFor(accent),
+                color = accent,
                 fontWeight = FontWeight.Black,
-                fontSize = 17.sp
+                fontSize = 16.sp
             )
         }
 
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(11.dp))
 
         Column {
             Text(
@@ -58,7 +54,7 @@ fun ProductionHeader(accent: Color) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Départ : Maintenant",
+                text = "Départ : maintenant",
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
