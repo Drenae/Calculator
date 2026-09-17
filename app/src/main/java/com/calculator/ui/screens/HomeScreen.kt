@@ -32,9 +32,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         modifier = modifier.background(
             Brush.verticalGradient(
                 listOf(
-                    Color(0xFF081522),
+                    Color(0xFF17191C),
                     AppBackground,
-                    Color(0xFF050C15)
+                    Color(0xFF0D0E10)
                 )
             )
         )
