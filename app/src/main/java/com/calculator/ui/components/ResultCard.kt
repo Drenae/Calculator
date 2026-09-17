@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,35 +31,32 @@ import java.util.Locale
 
 @Composable
 fun ResultCard(result: ProductionResult, accent: Color) {
-    val shape = RoundedCornerShape(20.dp)
+    val shape = RoundedCornerShape(14.dp)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.linearGradient(
-                    listOf(
-                        accent.copy(alpha = 0.16f),
-                        SurfaceRaised.copy(alpha = 0.94f)
-                    )
-                ),
-                shape = shape
-            )
-            .border(1.dp, accent.copy(alpha = 0.45f), shape)
+            .background(SurfaceRaised, shape)
+            .border(1.dp, BorderDark, shape)
             .padding(16.dp)
     ) {
-        Text(
-            text = "Résultat",
-            color = TextPrimary,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Estimation basée sur les paramètres saisis",
-            color = TextSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 2.dp, bottom = 14.dp)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .height(20.dp)
+                    .background(accent, RoundedCornerShape(2.dp))
+            )
+            Spacer(Modifier.width(9.dp))
+            Text(
+                text = "Résultat",
+                color = TextPrimary,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -70,13 +66,13 @@ fun ResultCard(result: ProductionResult, accent: Color) {
                 ResultItem(
                     label = "Temps d'une palette",
                     value = formatDuration(result.paletteSeconds),
-                    accent = TextPrimary
+                    valueColor = TextPrimary
                 )
                 Spacer(Modifier.height(16.dp))
                 ResultItem(
                     label = "Seaux à l'heure",
                     value = String.format(Locale.getDefault(), "%.0f", result.unitsPerHour),
-                    accent = TextPrimary
+                    valueColor = TextPrimary
                 )
             }
 
@@ -86,13 +82,13 @@ fun ResultCard(result: ProductionResult, accent: Color) {
                 ResultItem(
                     label = "Temps de production",
                     value = formatDuration(result.totalSeconds),
-                    accent = TextPrimary
+                    valueColor = TextPrimary
                 )
                 Spacer(Modifier.height(16.dp))
                 ResultItem(
                     label = "Fin estimée",
                     value = formatRelativeDateTime(result.endTime),
-                    accent = accent
+                    valueColor = accent
                 )
             }
         }
@@ -103,7 +99,7 @@ fun ResultCard(result: ProductionResult, accent: Color) {
 private fun ResultItem(
     label: String,
     value: String,
-    accent: Color
+    valueColor: Color
 ) {
     Column(Modifier.padding(horizontal = 10.dp)) {
         Text(
@@ -115,7 +111,7 @@ private fun ResultItem(
         Spacer(Modifier.height(4.dp))
         Text(
             text = value,
-            color = accent,
+            color = valueColor,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             lineHeight = 23.sp
@@ -129,6 +125,6 @@ private fun ResultDivider() {
         Modifier
             .width(1.dp)
             .height(126.dp)
-            .background(BorderDark.copy(alpha = 0.9f))
+            .background(BorderDark)
     )
 }
