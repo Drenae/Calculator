@@ -27,8 +27,8 @@ import com.calculator.ui.theme.TextPrimary
 
 @Composable
 fun AppHeader(onReset: () -> Unit) {
-    val accent = Color(0xFF19D3AE)
-    val headerBackground = Color(0xFF101719)
+    val accent = Color(0xFFFFB13B)
+    val headerBackground = Color(0xFF17181A)
 
     Row(
         modifier = Modifier
@@ -44,8 +44,8 @@ fun AppHeader(onReset: () -> Unit) {
                 .background(
                     Brush.linearGradient(
                         listOf(
-                            Color(0xFF27E1BB),
-                            Color(0xFF0BAF91)
+                            Color(0xFFFFC45E),
+                            Color(0xFFE68A17)
                         )
                     )
                 ),
@@ -53,7 +53,7 @@ fun AppHeader(onReset: () -> Unit) {
         ) {
             Text(
                 text = "P",
-                color = Color(0xFF07110F),
+                color = Color(0xFF211507),
                 fontWeight = FontWeight.Black,
                 fontSize = 21.sp
             )
@@ -77,7 +77,7 @@ fun AppHeader(onReset: () -> Unit) {
                 .background(accent.copy(alpha = 0.08f))
                 .border(
                     width = 1.dp,
-                    color = accent.copy(alpha = 0.28f),
+                    color = accent.copy(alpha = 0.30f),
                     shape = CircleShape
                 )
         ) {
